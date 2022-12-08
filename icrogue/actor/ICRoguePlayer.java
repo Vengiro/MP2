@@ -155,6 +155,11 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
     }
 
     @Override
+    public List<DiscreteCoordinates> getCurrentCells() {
+        return Collections.singletonList(getCurrentMainCellCoordinates());
+    }
+
+    @Override
     public boolean takeCellSpace() {
         return false;
     }

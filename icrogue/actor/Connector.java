@@ -6,11 +6,13 @@ import ch.epfl.cs107.play.game.areagame.actor.Orientation;
 import ch.epfl.cs107.play.game.areagame.actor.Sprite;
 import ch.epfl.cs107.play.game.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
+import ch.epfl.cs107.play.math.Vector;
 import ch.epfl.cs107.play.window.Canvas;
 
 import java.util.List;
 
 import static ch.epfl.cs107.play.game.icrogue.actor.Connector.State.INVISIBLE;
+import static ch.epfl.cs107.play.game.icrogue.actor.Connector.State.OPEN;
 
 public class Connector extends ICRogueActor implements Interactable {
     public enum State{
@@ -40,18 +42,29 @@ public class Connector extends ICRogueActor implements Interactable {
         switch (state){
             case INVISIBLE -> sprite = new Sprite("icrogue/invisibleDoor_"+orientation.ordinal(),
                     (orientation.ordinal()+1)%2+1, orientation.ordinal()%2+1, this);
+            case CLOSED -> sprite = new Sprite("icrogue/door_"+orientation.ordinal(),
+                    (orientation.ordinal()+1)%2+1, orientation.ordinal()%2+1, this);
+            case LOCKED -> sprite = new Sprite("icrogue/lockedDoor_"+orientation.ordinal(),
+                    (orientation.ordinal()+1)%2+1, orientation.ordinal()%2+1, this);
         }
+        sprite.draw(canvas);
 
     }
 
     @Override
     public List<DiscreteCoordinates> getCurrentCells() {
-        return null;
+        DiscreteCoordinates coord = getCurrentMainCellCoordinates();
+        return List.of(coord , coord.jump(new Vector((getOrientation().ordinal()+1)%2,
+                getOrientation().ordinal()%2)));
+
     }
 
     @Override
     public boolean takeCellSpace() {
-        return false;
+        if (state == OPEN){
+            return false;
+        }
+        return true;
     }
 
     @Override

@@ -24,10 +24,6 @@ public abstract class  ICRogueActor extends MovableAreaEntity {
     }
 
     /** Since all of our actors in the game take only one cell we can directly define this method there */
-    @Override
-    public List<DiscreteCoordinates> getCurrentCells() {
-        return Collections.singletonList(getCurrentMainCellCoordinates());
-    }
 
     @Override
     public boolean takeCellSpace() {

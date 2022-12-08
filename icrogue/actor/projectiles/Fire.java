@@ -12,6 +12,9 @@ import ch.epfl.cs107.play.math.RegionOfInterest;
 import ch.epfl.cs107.play.math.Vector;
 import ch.epfl.cs107.play.window.Canvas;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Fire extends Projectile {
 
     ICRogueFireInteractionHandler handler = new ICRogueFireInteractionHandler();
@@ -24,6 +27,11 @@ public class Fire extends Projectile {
     public void draw(Canvas canvas) {
         sprite.draw(canvas);
 
+    }
+
+    @Override
+    public List<DiscreteCoordinates> getCurrentCells() {
+        return Collections.singletonList(getCurrentMainCellCoordinates());
     }
 
     @Override
