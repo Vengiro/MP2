@@ -126,8 +126,8 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
             /** Check if spam fireball */
             if(!(b.isDown())){
 
-                /** We take the first element of the Discrete Coordinates list provided by getCurrentCells()
-                 * because it contains only one element */
+                // We take the first element of the Discrete Coordinates list provided by getCurrentCells()
+                // because it contains only one element
 
                 Fire fireBall = new Fire(getOwnerArea(), getOrientation(),getCurrentCells().get(0), 3, 10);
                 fireBall.setSprite();
@@ -200,7 +200,6 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
         public void interactWith(Cherry c, boolean isCellInteraction){
             if(wantsCellInteraction()){
                 c.collect();
-
             }
         }
 

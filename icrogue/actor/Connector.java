@@ -11,8 +11,6 @@ import ch.epfl.cs107.play.window.Canvas;
 
 import java.util.List;
 
-import static ch.epfl.cs107.play.game.icrogue.actor.Connector.State.INVISIBLE;
-import static ch.epfl.cs107.play.game.icrogue.actor.Connector.State.OPEN;
 
 public class Connector extends ICRogueActor implements Interactable {
     public enum State{
@@ -26,14 +24,14 @@ public class Connector extends ICRogueActor implements Interactable {
     private Sprite sprite;
     private String nextArea;
     private DiscreteCoordinates coordinatesOfNewArea;
-    private Orientation orientation;
+    private final Orientation orientation;
     private final int NO_KEY_ID = 0;
 
     private int keyID = NO_KEY_ID;
 
-    Connector(Area area, Orientation orientation, DiscreteCoordinates position){
+    public Connector(Area area, Orientation orientation, DiscreteCoordinates position){
         super(area, orientation, position);
-        state = INVISIBLE;
+        state = State.INVISIBLE;
         this.orientation = orientation;
     }
 
@@ -48,9 +46,8 @@ public class Connector extends ICRogueActor implements Interactable {
                     (orientation.ordinal()+1)%2+1, orientation.ordinal()%2+1, this);
         }
         sprite.draw(canvas);
-
     }
-
+    public void setState(State state){this.state = state;}
     @Override
     public List<DiscreteCoordinates> getCurrentCells() {
         DiscreteCoordinates coord = getCurrentMainCellCoordinates();
@@ -61,10 +58,7 @@ public class Connector extends ICRogueActor implements Interactable {
 
     @Override
     public boolean takeCellSpace() {
-        if (state == OPEN){
-            return false;
-        }
-        return true;
+        return state != State.OPEN;
     }
 
     @Override

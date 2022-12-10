@@ -59,7 +59,6 @@ public abstract class Projectile extends ICRogueActor implements Consumable, Int
 
     public void throwFireBall(){
             move(MOVE_DURATION);
-
     }
 
 
