@@ -14,6 +14,7 @@ public abstract class Level {
     private DiscreteCoordinates destination;
     private final static DiscreteCoordinates bossPosition = new DiscreteCoordinates(0,0);
     private String roomName;
+    private boolean isWon = false;
 
     public Level(){
     }
@@ -43,4 +44,10 @@ public abstract class Level {
     /*protected abstract void setRoomName(DiscreteCoordinates coords);*/
     public String getTitleStartingRoom(DiscreteCoordinates startingRoom){return map[startingRoom.x][startingRoom.y].getTitle();}
 
+    public void isWon(){
+        if(map[bossPosition.x][bossPosition.y].isOn() & !(isWon)){
+            System.out.println("Win");
+            isWon = true;
+        }
+    }
 }

@@ -16,14 +16,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Turret extends ICRogueActor {
+public class Turret extends Enemy {
 
     private Sprite sprite;
     private Orientation[] orientations;
     private final float COOLDOWN = 2.f;
     private final float dt = .1f;
     private float counter = 0;
-    private boolean isDead = false;
+
     /**
      * Default MovableAreaEntity constructor
      *
@@ -33,21 +33,21 @@ public class Turret extends ICRogueActor {
      */
     public Turret(Area area, Orientation orientation, DiscreteCoordinates position, Orientation[] orientationsOfArrows) {
         super(area, orientation, position);
-        sprite = new Sprite("icrogue/static_npc", 1.5f, 1.5f, this , null , new Vector(-0.25f, 0));
+        sprite = new Sprite("icrogue/static_npc", 1.5f, 1.5f, this, null, new Vector(-0.25f, 0));
         orientations = orientationsOfArrows;
     }
 
-    public void update(float deltatime){
+    public void update(float deltatime) {
         super.update(deltatime);
-        if(counter >= COOLDOWN){
+        if (counter >= COOLDOWN) {
             throwArrow();
-            counter = (counter)%COOLDOWN;
+            counter = (counter) % COOLDOWN;
         }
         counter += dt;
     }
 
-    private void throwArrow(){
-        for(Orientation orientation : orientations){
+    private void throwArrow() {
+        for (Orientation orientation : orientations) {
             Arrow arrow = new Arrow(getOwnerArea(), orientation, getCurrentCells().get(0));
             arrow.appear();
         }
@@ -70,12 +70,7 @@ public class Turret extends ICRogueActor {
 
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
-        ((ICRogueInteractionHandler) v).interactWith(this , isCellInteraction);
+        ((ICRogueInteractionHandler) v).interactWith(this, isCellInteraction);
     }
-
-    public void die(){
-        this.getOwnerArea().unregisterActor(this);
-        isDead = true;
-    }
-    public boolean isDead(){return isDead;}
 }
+

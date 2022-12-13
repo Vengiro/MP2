@@ -10,7 +10,6 @@ public class Level0EnemyRoom extends Level0Room implements Logic {
     public Level0EnemyRoom(DiscreteCoordinates roomCoordinates) {
         super(roomCoordinates);
     }
-
     protected void setEnemiesList(Turret[] enemiesList) {
         this.enemiesList = enemiesList;
     }

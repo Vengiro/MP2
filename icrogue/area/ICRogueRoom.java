@@ -145,5 +145,6 @@ public abstract class ICRogueRoom extends Area implements Logic {
            }
         }
     }
+
 }
 

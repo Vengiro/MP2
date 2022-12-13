@@ -73,6 +73,7 @@ public class ICRogue extends AreaGame {
         super.update(deltaTime);
         reset(keyboard.get(Keyboard.R));
         switchRoom();
+        Level.isWon();
     }
 
     @Override

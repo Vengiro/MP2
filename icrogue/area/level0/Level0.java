@@ -18,7 +18,7 @@ public class Level0 extends Level {
     private final int height = 2;
     private final int width = 4;
 
-    private final static DiscreteCoordinates startingRoom = new DiscreteCoordinates(3,0);
+    private final static DiscreteCoordinates startingRoomPosition = new DiscreteCoordinates(3,0);
 
     public Level0() {
         super();
@@ -78,5 +78,5 @@ public class Level0 extends Level {
         setRoom (room11, new Level0Room(room11));
         setRoomConnector(room11, "icrogue/level010", Level0Room.Level0Connectors.N);
     }
-    public static DiscreteCoordinates getStartingRoomPosition(){return startingRoom;}
+    public static DiscreteCoordinates getStartingRoomPosition(){return startingRoomPosition;}
 }
