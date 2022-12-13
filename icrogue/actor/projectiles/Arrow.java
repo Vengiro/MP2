@@ -6,7 +6,7 @@ import ch.epfl.cs107.play.game.areagame.actor.Orientation;
 import ch.epfl.cs107.play.game.areagame.actor.Sprite;
 import ch.epfl.cs107.play.game.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.game.icrogue.ICRogueBehavior;
-import ch.epfl.cs107.play.game.icrogue.actor.enemies.Turret;
+import ch.epfl.cs107.play.game.icrogue.actor.ICRoguePlayer;
 import ch.epfl.cs107.play.game.icrogue.handler.ICRogueInteractionHandler;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.RegionOfInterest;
@@ -16,38 +16,44 @@ import ch.epfl.cs107.play.window.Canvas;
 import java.util.Collections;
 import java.util.List;
 
-public class Fire extends Projectile {
-
-    public Fire(Area area, Orientation orientation, DiscreteCoordinates position, int MOVE_DURATION, int damage) {
+public class Arrow extends Projectile{
+    public Arrow(Area area, Orientation orientation, DiscreteCoordinates position, int MOVE_DURATION, int damage) {
         super(area, orientation, position, MOVE_DURATION, damage);
-        sprite = new Sprite("zelda/fire", 1f, 1f, this ,
-                new RegionOfInterest(0, 0, 16, 16), new Vector(0, 0));
+        sprite = new Sprite("zelda/arrow", 1f, 1f, this ,
+                new RegionOfInterest(32* orientation.ordinal(), 0, 32, 32), new Vector(0, 0));
+
     }
-    public Fire(Area area, Orientation orientation, DiscreteCoordinates position){
+
+    public Arrow(Area area, Orientation orientation, DiscreteCoordinates position) {
         super(area, orientation, position);
-        sprite = new Sprite("zelda/fire", 1f, 1f, this ,
-                new RegionOfInterest(0, 0, 16, 16), new Vector(0, 0));
-    }
-
-
-    @Override
-    public void draw(Canvas canvas) {
-        sprite.draw(canvas);
+        sprite = new Sprite("zelda/arrow", 1f, 1f, this ,
+                new RegionOfInterest(32* orientation.ordinal(), 0, 32, 32), new Vector(0, 0));
 
     }
 
     public void update(float deltatime){
         super.update(deltatime);
-        throwFireBall();
+        throwArrow();
     }
 
-    private void throwFireBall(){
+    private void throwArrow(){
         move(MOVE_DURATION);
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        sprite.draw(canvas);
     }
 
     @Override
     public List<DiscreteCoordinates> getCurrentCells() {
         return Collections.singletonList(getCurrentMainCellCoordinates());
+    }
+
+    private final ICRogueArrowInteractionHandler handler = new ICRogueArrowInteractionHandler();
+    @Override
+    public void interactWith(Interactable other, boolean isCellInteraction) {
+        other.acceptInteraction(handler , isCellInteraction);
     }
 
     @Override
@@ -60,25 +66,17 @@ public class Fire extends Projectile {
         ((ICRogueInteractionHandler) v).interactWith(this , isCellInteraction);
     }
 
-    private final ICRogueFireInteractionHandler handler = new ICRogueFireInteractionHandler();
-    @Override
-    public void interactWith(Interactable other, boolean isCellInteraction) {
-        other.acceptInteraction(handler , isCellInteraction);
-    }
-
-    private class ICRogueFireInteractionHandler implements ICRogueInteractionHandler{
+    private class ICRogueArrowInteractionHandler implements ICRogueInteractionHandler{
         public void interactWith(ICRogueBehavior.ICRogueCell cell, boolean isCellInteraction){
 
-            if(wantsViewInteraction() && doesItStopProjectiles(cell)){
+            if(doesItStopProjectiles(cell)){
                 consume();
-
             }
         }
-
-        public void interactWith(Turret turret, boolean isCellInteraction){
-            if (wantsCellInteraction()){
-                turret.die();
-            }
+        public void interactWith(ICRoguePlayer player, boolean isCellInteraction){
+            consume();
         }
+
+
     }
 }

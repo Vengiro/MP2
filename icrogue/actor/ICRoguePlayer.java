@@ -5,7 +5,9 @@ import ch.epfl.cs107.play.game.actor.TextGraphics;
 import ch.epfl.cs107.play.game.areagame.Area;
 import ch.epfl.cs107.play.game.areagame.actor.*;
 import ch.epfl.cs107.play.game.areagame.handler.AreaInteractionVisitor;
+import ch.epfl.cs107.play.game.icrogue.actor.enemies.Turret;
 import ch.epfl.cs107.play.game.icrogue.actor.items.Cherry;
+import ch.epfl.cs107.play.game.icrogue.actor.items.Key;
 import ch.epfl.cs107.play.game.icrogue.actor.items.Staff;
 import ch.epfl.cs107.play.game.icrogue.actor.projectiles.Fire;
 import ch.epfl.cs107.play.game.icrogue.handler.ICRogueInteractionHandler;
@@ -18,6 +20,7 @@ import ch.epfl.cs107.play.window.Canvas;
 import ch.epfl.cs107.play.window.Keyboard;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,18 +29,25 @@ import static ch.epfl.cs107.play.game.areagame.actor.Animation.createAnimations;
 public class ICRoguePlayer extends ICRogueActor implements Interactor {
 
     private Sprite sprite;
-
     final private Sprite[] upSprite = new Sprite[4];
     final private Sprite[] downSprite = new Sprite[4];
     final private Sprite[] rightSprite = new Sprite[4];
     final private Sprite[] leftSprite = new Sprite[4];
-    final private Sprite[][] array = new Sprite[4][];
+    final private Sprite[][] arrayOfSprite = {upSprite, rightSprite, downSprite, leftSprite};
     private int frame;
     private final static int MOVE_DURATION = 6;
     private final Keyboard keyboard = this.getOwnerArea().getKeyboard();
     private final ICRoguePlayerInteractionHandler handler = new ICRoguePlayerInteractionHandler();
 
     private boolean staffCollected = false;
+
+    private ArrayList<Integer> keysID = new ArrayList<>();
+
+    private boolean wantSwitchRoom = false;
+    private String destinationName;
+    private DiscreteCoordinates spawnPosition;
+    private final Animation[] animation;
+    private Animation currentAnimation;
 
 
     /**
@@ -50,6 +60,7 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
     public ICRoguePlayer(Area area, Orientation orientation, DiscreteCoordinates position) {
         super(area, orientation, position);
         correctSprite(orientation);
+        animation = createAnimations(MOVE_DURATION, arrayOfSprite);
     }
 
     public void update(float deltatime){
@@ -59,7 +70,16 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
         this.moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
         this.moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
         throwFireBall(keyboard.get(Keyboard.X));
+        if(isDisplacementOccurs()){
+            currentAnimation.update(deltatime);
+        }
+        //If it is not assign to false it keeps being true so switchRoom in ICRogue keeps being called
+        wantSwitchRoom = false;
     }
+
+    public boolean getWillOfTransition(){return wantSwitchRoom;}
+    public String getDestination(){return destinationName;}
+    public DiscreteCoordinates getSpawnPosition(){return spawnPosition;}
 
     private void dynamicSprite(){
         for (int i = 0; i < 4; ++i) {
@@ -68,10 +88,6 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
             upSprite[i] = new Sprite("zelda/player", .75f, 1.5f, this , new RegionOfInterest(i*16, 64, 16, 32), new Vector(.15f,-.15f));
             leftSprite[i] = new Sprite("zelda/player", .75f, 1.5f, this , new RegionOfInterest(i*16, 96, 16, 32), new Vector(.15f,-.15f));
         }
-        /*array[0] = downSprite;
-        array[1] = rightSprite;
-        array[2] = upSprite;
-        array[3] = leftSprite;*/
     }
     private void correctSprite(Orientation orientation){
         dynamicSprite();
@@ -95,42 +111,26 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
         this.sprite = sprite;
     }
     private void moveIfPressed(final Orientation orientation, final Button b) {
-        dynamicSprite();
-        Animation[] animation = createAnimations(MOVE_DURATION, array);
         if (b.isDown()) {
-            frame = (frame+1)%4;
             if (!this.isDisplacementOccurs()) {
-                switch (orientation) {
-                    case UP -> {
-                        this.setSprite(upSprite[frame]);
-                    }
-                    case DOWN -> {
-                        this.setSprite(downSprite[frame]);
-                    }
-                    case RIGHT -> {
-                        this.setSprite(rightSprite[frame]);
-                    }
-                    case LEFT -> {
-                        this.setSprite(leftSprite[frame]);
-                    }
-                }
                 this.orientate(orientation);
+                correctSprite(orientation);
                 this.move(MOVE_DURATION);
+                currentAnimation = animation[orientation.ordinal()];
             }
         }
     }
 
-    public void throwFireBall(Button b){
+    private void throwFireBall(Button b){
 
         if (b.wasDown() && staffCollected){
-            /** Check if spam fireball */
+            // Check if spam fireball
             if(!(b.isDown())){
 
                 // We take the first element of the Discrete Coordinates list provided by getCurrentCells()
                 // because it contains only one element
 
-                Fire fireBall = new Fire(getOwnerArea(), getOrientation(),getCurrentCells().get(0), 3, 10);
-                fireBall.setSprite();
+                Fire fireBall = new Fire(getOwnerArea(), getOrientation(),getCurrentCells().get(0));
                 fireBall.appear();
             }
         }
@@ -151,7 +151,11 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
 
     @Override
     public void draw(Canvas canvas) {
-        this.sprite.draw(canvas);
+        if (isDisplacementOccurs()){
+            this.currentAnimation.draw(canvas);
+        }else {
+            this.sprite.draw(canvas);
+        }
     }
 
     @Override
@@ -182,7 +186,7 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
 
     @Override
     public boolean wantsCellInteraction() {
-        return true;
+        return !(wantsViewInteraction());
     }
 
 
@@ -208,7 +212,35 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
                 s.collect();
                 staffCollected = s.isCollected();
             }
+        }
 
+        public void interactWith(Key key, boolean isCellInteraction){
+            if (wantsCellInteraction()){
+                key.collect();
+                keysID.add(key.getKeyID());
+            }
+        }
+
+        public void interactWith(Connector connector, boolean isCellInteraction){
+            if(wantsViewInteraction()){
+                for(int key : keysID){
+                    if (connector.getKeyID() == key){
+                        connector.openState();
+                    }
+                }
+            }
+            if (wantsCellInteraction()){
+                destinationName = connector.getDestination();
+                spawnPosition = connector.getCoordinatesOfSpawn();
+            }
+
+            wantSwitchRoom = (wantsCellInteraction() & !(isDisplacementOccurs()));
+        }
+
+        public void interactWith(Turret turret, boolean isCellInteraction){
+            if (wantsCellInteraction()){
+                turret.die();
+            }
         }
 
 

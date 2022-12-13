@@ -1,10 +1,13 @@
 package ch.epfl.cs107.play.game.icrogue;
 
 
+import ch.epfl.cs107.play.game.areagame.Area;
 import ch.epfl.cs107.play.game.areagame.AreaGame;
 import ch.epfl.cs107.play.game.areagame.actor.Orientation;
 import ch.epfl.cs107.play.game.icrogue.actor.ICRoguePlayer;
 import ch.epfl.cs107.play.game.icrogue.area.ICRogueRoom;
+import ch.epfl.cs107.play.game.icrogue.area.Level;
+import ch.epfl.cs107.play.game.icrogue.area.level0.Level0;
 import ch.epfl.cs107.play.game.icrogue.area.level0.rooms.Level0Room;
 import ch.epfl.cs107.play.game.tutosSolution.actor.GhostPlayer;
 import ch.epfl.cs107.play.game.tutosSolution.actor.Player;
@@ -22,7 +25,7 @@ public class ICRogue extends AreaGame {
     public final static float CAMERA_SCALE_FACTOR = 13.f;
 
     private ICRoguePlayer player;
-    private Level0Room currentRoom;
+    private Level0 Level;
 
     private  Keyboard keyboard;
 
@@ -33,12 +36,13 @@ public class ICRogue extends AreaGame {
 
 
     private void initLevel(){
-        currentRoom = new Level0Room(new DiscreteCoordinates(0,0));
-        addArea(currentRoom);
-        setCurrentArea(currentRoom.getTitle(), true);
-        DiscreteCoordinates coords = currentRoom.getPlayerSpawnPosition();
-        player = new ICRoguePlayer(currentRoom, Orientation.UP, coords);
-        player.enterArea(currentRoom, coords);
+        Level = new Level0();
+        Level.initArea(this);
+        String  startingRoomTitle = Level.getTitleStartingRoom(Level0.getStartingRoomPosition());
+        ICRogueRoom startingRoom = (ICRogueRoom) setCurrentArea(startingRoomTitle, true);
+        DiscreteCoordinates coords = startingRoom.getPlayerSpawnPosition();
+        player = new ICRoguePlayer(startingRoom, Orientation.UP, coords);
+        player.enterArea(startingRoom, coords);
 
     }
 
@@ -68,6 +72,7 @@ public class ICRogue extends AreaGame {
         }*/
         super.update(deltaTime);
         reset(keyboard.get(Keyboard.R));
+        switchRoom();
     }
 
     @Override
@@ -86,16 +91,12 @@ public class ICRogue extends AreaGame {
         }
     }
 
-    /*protected void switchArea() {
-
-        player.leaveArea();
-
-        areaIndex = (areaIndex==0) ? 1 : 0;
-
-        Tuto2Area currentArea = (Tuto2Area)setCurrentArea(areas[areaIndex], false);
-        player.enterArea(currentArea, currentArea.getPlayerSpawnPosition());
-
-        player.strengthen();
-    }*/
+    private void switchRoom() {
+        if(player.getWillOfTransition()){
+            player.leaveArea();
+            ICRogueRoom currentArea = (ICRogueRoom) setCurrentArea(player.getDestination(), true);
+            player.enterArea(currentArea, player.getSpawnPosition());
+        }
+    }
 
 }

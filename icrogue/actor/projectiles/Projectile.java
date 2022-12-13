@@ -1,9 +1,11 @@
 package ch.epfl.cs107.play.game.icrogue.actor.projectiles;
 
 import ch.epfl.cs107.play.game.areagame.Area;
+import ch.epfl.cs107.play.game.areagame.AreaBehavior;
 import ch.epfl.cs107.play.game.areagame.actor.Interactor;
 import ch.epfl.cs107.play.game.areagame.actor.Orientation;
 import ch.epfl.cs107.play.game.areagame.actor.Sprite;
+import ch.epfl.cs107.play.game.icrogue.ICRogueBehavior;
 import ch.epfl.cs107.play.game.icrogue.actor.ICRogueActor;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.window.Button;
@@ -20,7 +22,7 @@ public abstract class Projectile extends ICRogueActor implements Consumable, Int
     protected boolean isConsumed;
 
     final private int DEFAULT_DAMAGE = 1;
-    final private int DEFAULT_MOVE_DURATION = 10;
+    final private int DEFAULT_MOVE_DURATION = 4;
 
     /**
      * Default MovableAreaEntity constructor
@@ -40,7 +42,6 @@ public abstract class Projectile extends ICRogueActor implements Consumable, Int
         damage = DEFAULT_DAMAGE;
     }
 
-    public abstract void setSprite();
     @Override
     public void consume() {
         this.getOwnerArea().unregisterActor(this);
@@ -54,18 +55,19 @@ public abstract class Projectile extends ICRogueActor implements Consumable, Int
 
     public  void update(float deltatime){
         super.update(deltatime);
-        throwFireBall();
     }
-
-    public void throwFireBall(){
-            move(MOVE_DURATION);
+    public void appear(){
+        this.getOwnerArea().registerActor(this);
     }
-
-
     @Override
     public List<DiscreteCoordinates> getFieldOfViewCells() {
         return Collections.singletonList
                 (getCurrentMainCellCoordinates().jump(getOrientation().toVector()));
+    }
+
+    protected boolean doesItStopProjectiles(ICRogueBehavior.ICRogueCell cell){
+        return  (cell.getType().equals(ICRogueBehavior.ICRogueCell.ICRogueCellType.HOLE))  ||
+                (cell.getType().equals(ICRogueBehavior.ICRogueCell.ICRogueCellType.WALL));
     }
 
     @Override

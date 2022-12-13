@@ -5,6 +5,7 @@ import ch.epfl.cs107.play.game.areagame.actor.Interactable;
 import ch.epfl.cs107.play.game.areagame.actor.Orientation;
 import ch.epfl.cs107.play.game.areagame.actor.Sprite;
 import ch.epfl.cs107.play.game.areagame.handler.AreaInteractionVisitor;
+import ch.epfl.cs107.play.game.icrogue.handler.ICRogueInteractionHandler;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Vector;
 import ch.epfl.cs107.play.window.Canvas;
@@ -22,18 +23,40 @@ public class Connector extends ICRogueActor implements Interactable {
 
     private State state;
     private Sprite sprite;
-    private String nextArea;
-    private DiscreteCoordinates coordinatesOfNewArea;
+    private String nextAreaName;
+    private DiscreteCoordinates coordinatesOfSpawn;
     private final Orientation orientation;
-    private final int NO_KEY_ID = 0;
+    private static final int NO_KEY_ID = 0;
 
     private int keyID = NO_KEY_ID;
+
+    public Connector(Area area, Orientation orientation, DiscreteCoordinates position, int keyID){
+        super(area, orientation, position);
+        this.keyID = keyID;
+        state = State.INVISIBLE;
+        this.orientation = orientation;
+    }
 
     public Connector(Area area, Orientation orientation, DiscreteCoordinates position){
         super(area, orientation, position);
         state = State.INVISIBLE;
         this.orientation = orientation;
     }
+
+    public Area getConnectorArea(){return this.getOwnerArea();}
+
+    public void setCoordinatesOfSpawn(DiscreteCoordinates coordinatesOfSpawn){this.coordinatesOfSpawn = coordinatesOfSpawn;}
+    public DiscreteCoordinates getCoordinatesOfSpawn(){return coordinatesOfSpawn;}
+
+    public void setDestination(String nextAreaName){
+        this.nextAreaName = nextAreaName;
+    }
+    public String getDestination(){return nextAreaName;}
+    public void setKeyID(int keyID){
+        this.keyID = keyID;
+    }
+
+    public int getKeyID(){return keyID;}
 
     @Override
     public void draw(Canvas canvas) {
@@ -45,9 +68,27 @@ public class Connector extends ICRogueActor implements Interactable {
             case LOCKED -> sprite = new Sprite("icrogue/lockedDoor_"+orientation.ordinal(),
                     (orientation.ordinal()+1)%2+1, orientation.ordinal()%2+1, this);
         }
-        sprite.draw(canvas);
+        if(state != State.OPEN){sprite.draw(canvas);}
     }
-    public void setState(State state){this.state = state;}
+    public void switchState(){
+        if (this.state == State.OPEN){
+            this.state = State.CLOSED;
+        }
+        else if(this.state != State.LOCKED){
+            this.state = State.OPEN;
+        }
+    }
+
+    public State getState(){return state;}
+    public void openState(){
+            this.state = State.OPEN;
+    }
+
+    public void closeState(){
+            this.state = State.CLOSED;
+    }
+
+    public void lockState(){this.state = State.LOCKED;}
     @Override
     public List<DiscreteCoordinates> getCurrentCells() {
         DiscreteCoordinates coord = getCurrentMainCellCoordinates();
@@ -63,27 +104,23 @@ public class Connector extends ICRogueActor implements Interactable {
 
     @Override
     public boolean isCellInteractable() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isViewInteractable() {
-        return false;
+        return state == State.LOCKED;
     }
 
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
-
+        ((ICRogueInteractionHandler) v).interactWith(this , isCellInteraction);
     }
 
     @Override
-    public void onLeaving(List<DiscreteCoordinates> coordinates) {
-
-    }
+    public void onLeaving(List<DiscreteCoordinates> coordinates) {}
 
     @Override
-    public void onEntering(List<DiscreteCoordinates> coordinates) {
-
-    }
+    public void onEntering(List<DiscreteCoordinates> coordinates) {}
 
 }

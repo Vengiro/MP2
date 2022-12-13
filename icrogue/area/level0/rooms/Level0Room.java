@@ -70,7 +70,6 @@ public class Level0Room extends ICRogueRoom {
     protected void createArea() {
         super.createArea();
         registerActor(new Background(this, behaviorName));
-        registerActor(new Staff(this, Orientation.DOWN, new DiscreteCoordinates (4,3)));
         registerActor(new Cherry(this, Orientation.DOWN, new DiscreteCoordinates(6,3)));
     }
 
@@ -84,7 +83,8 @@ public class Level0Room extends ICRogueRoom {
         String x =  String.valueOf(roomCoordinates.x);
         String y =  String.valueOf(roomCoordinates.y);
 
-        return "icrogue/Level0"+x+y;
+        return "icrogue/level0"+x+y;
     }
+
 
     }
