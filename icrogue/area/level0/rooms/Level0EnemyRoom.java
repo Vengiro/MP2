@@ -13,6 +13,7 @@ public class Level0EnemyRoom extends Level0Room implements Logic {
     protected void setEnemiesList(Turret[] enemiesList) {
         this.enemiesList = enemiesList;
     }
+    @Override
     public void createArea(){
         super.createArea();
         for(Turret enemy : enemiesList){
@@ -20,6 +21,7 @@ public class Level0EnemyRoom extends Level0Room implements Logic {
         }
     }
 
+    @Override
     public boolean isOn() {
         for (Turret enemy : enemiesList){
             if (!(enemy.isDead())){

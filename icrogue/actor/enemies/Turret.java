@@ -18,10 +18,10 @@ import java.util.List;
 
 public class Turret extends Enemy {
 
-    private Sprite sprite;
-    private Orientation[] orientations;
+    private final Sprite sprite;
+    private final Orientation[] orientations;
     private final float COOLDOWN = 2.f;
-    private final float dt = .1f;
+    private final float dt = .05f;
     private float counter = 0;
 
     /**
@@ -36,12 +36,12 @@ public class Turret extends Enemy {
         sprite = new Sprite("icrogue/static_npc", 1.5f, 1.5f, this, null, new Vector(-0.25f, 0));
         orientations = orientationsOfArrows;
     }
-
+    @Override
     public void update(float deltatime) {
         super.update(deltatime);
         if (counter >= COOLDOWN) {
             throwArrow();
-            counter = (counter) % COOLDOWN;
+            counter = 0;
         }
         counter += dt;
     }

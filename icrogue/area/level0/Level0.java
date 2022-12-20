@@ -18,7 +18,7 @@ public class Level0 extends Level {
     private final int height = 2;
     private final int width = 4;
 
-    private final static DiscreteCoordinates startingRoomPosition = new DiscreteCoordinates(3,0);
+    private final static DiscreteCoordinates startingRoomPosition = new DiscreteCoordinates(0,0);
 
     public Level0() {
         super();
@@ -36,7 +36,7 @@ public class Level0 extends Level {
         }
     }
 
-    private void generateFixedMap(){
+    public void generateFixedMap(){
         generateMap2();
     }
 
