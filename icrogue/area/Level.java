@@ -44,6 +44,8 @@ public abstract class Level {
     /*protected abstract void setRoomName(DiscreteCoordinates coords);*/
     public String getTitleStartingRoom(DiscreteCoordinates startingRoom){return map[startingRoom.x][startingRoom.y].getTitle();}
 
+    public abstract void generateFixedMap();
+
     public void isWon(){
         if(map[bossPosition.x][bossPosition.y].isOn() & !(isWon)){
             System.out.println("Win");
