@@ -32,12 +32,6 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
     private TextGraphics message = new TextGraphics(Integer.toString(HP), 0.4f, Color.WHITE);
     private boolean hasLost = false;
     private Sprite sprite;
-    /*final private Sprite[] upSprite = new Sprite[4];
-    final private Sprite[] downSprite = new Sprite[4];
-    final private Sprite[] rightSprite = new Sprite[4];
-    final private Sprite[] leftSprite = new Sprite[4];
-    final private Sprite[][] arrayOfSprite = {upSprite, rightSprite, downSprite, leftSprite};
-    private int frame;*/
     private final static int MOVE_DURATION = 6;
     private final Keyboard keyboard = this.getOwnerArea().getKeyboard();
     private final ICRoguePlayerInteractionHandler handler = new ICRoguePlayerInteractionHandler();
@@ -261,7 +255,7 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
         }
         @Override
         public void interactWith(Turret turret, boolean isCellInteraction){
-            if (wantsCellInteraction()){
+            if (wantsCellInteraction() && !(turret.isDead())){
                 turret.die();
             }
         }

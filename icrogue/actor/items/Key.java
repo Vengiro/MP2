@@ -11,7 +11,7 @@ public class Key extends Item{
     private int keyID;
     public Key(Area area, Orientation orientation, DiscreteCoordinates position, int keyID) {
         super(area, orientation, position);
-        sprite = new Sprite("icrogue/key", .8f, .8f, this);
+        setSprite(new Sprite("icrogue/key", .8f, .8f, this));
         this.keyID = keyID;
     }
     public int getKeyID(){return keyID;}

@@ -39,7 +39,7 @@ public class Level0 extends Level {
     public Level0(boolean randomMap){
         super(randomMap, startingRoomPosition, 4, 2);
         if (!randomMap) {
-            map = new ICRogueRoom[width][height];
+            setMap(new ICRogueRoom[width][height]);
             generateFixedMap();
         } else {
             generateRandomMap(fillRoomDistribution());
@@ -74,7 +74,7 @@ public class Level0 extends Level {
 
 
     public void initArea(AreaGame areaGame){
-        for(ICRogueRoom[] roomArray : map){
+        for(ICRogueRoom[] roomArray : getMap()){
             for (ICRogueRoom room : roomArray){
                 if (room != null){
                     areaGame.addArea(room);
@@ -130,12 +130,12 @@ public class Level0 extends Level {
 
     protected void generateRandomMap(int [] roomsDistribution){
         super.generateRandomMap(roomsDistribution);
-        MapState[][] carteDesPlacements = generateRandomRoomPlacement(map.length);
+        MapState[][] carteDesPlacements = generateRandomRoomPlacement(getMap().length);
         roomsPlacement(carteDesPlacements);
     }
     protected void roomsPlacement(MapState[][] placementOfRooms){
         List<Integer> arrayOfRooms = new ArrayList<>();
-        for(int i=0; i<map.length; ++i){arrayOfRooms.add(i);}
+        for(int i=0; i<getMap().length; ++i){arrayOfRooms.add(i);}
 
         // For each value in roomsDistribution we randomly add it to the map according to the placementsOfRooms
         for (int k=0; k<roomsDistribution.length; ++k) {
@@ -190,7 +190,7 @@ public class Level0 extends Level {
     }
 
     private void setConnectorsOfRoom(MapState[][] placementOfRooms, DiscreteCoordinates position){
-        if (position.y < map.length-1 && placementOfRooms[position.x][position.y + 1] != MapState.NULL) {
+        if (position.y < getMap().length-1 && placementOfRooms[position.x][position.y + 1] != MapState.NULL) {
             //Right
             setRoomConnector(position, getRoomName(position.x, position.y+1), Level0Room.Level0Connectors.E);
             if(getBossPosition().equals(new DiscreteCoordinates(position.x, position.y+1))){
@@ -211,7 +211,7 @@ public class Level0 extends Level {
                 lockRoomConnector(position, Level0Room.Level0Connectors.W, BOSS_KEY_ID);
             }
         }
-        if (position.x < map.length-1 && placementOfRooms[position.x +1][position.y] != MapState.NULL) {
+        if (position.x < getMap().length-1 && placementOfRooms[position.x +1][position.y] != MapState.NULL) {
             //Down
             setRoomConnector(position, getRoomName(position.x+1, position.y), Level0Room.Level0Connectors.S);
             if(getBossPosition().equals(new DiscreteCoordinates(position.x+1, position.y))){

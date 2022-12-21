@@ -13,7 +13,7 @@ import java.util.Random;
 
 public abstract class Level {
 
-    protected ICRogueRoom[][] map;
+    private ICRogueRoom[][] map;
     private DiscreteCoordinates destination;
     private DiscreteCoordinates bossPosition = new DiscreteCoordinates(0,0);
     private String roomName;
@@ -53,6 +53,8 @@ public abstract class Level {
         }*/
     }
 
+    protected ICRogueRoom[][] getMap(){return map;}
+    protected void setMap(ICRogueRoom[][] map){this.map = map;}
     protected void setBossPosition(DiscreteCoordinates coords){bossPosition = coords;}
     protected DiscreteCoordinates getBossPosition(){return bossPosition;}
     protected void setRoomsDistribution(int[] roomsDistribution){this.roomsDistribution  = roomsDistribution;}

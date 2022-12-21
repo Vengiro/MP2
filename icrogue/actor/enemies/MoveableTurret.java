@@ -32,21 +32,12 @@ public class MoveableTurret extends Turret implements Interactor {
 
     }
 
-/*    @Override
-    public void update(float deltatime){
-        super.update(deltatime);
-        if(!(isDisplacementOccurs())) {
 
-            *//*orientate(Orientation.values()[(int) Math.round(Math.random() * 3)]);
-            *//**//*orientate(Orientation.UP);*//**//*
-            move(8);*//*
-        }
-    }*/
-
+    /**
+     * Kill the ennemy if he does not move
+     */
     public void die(){
-        if (!(isDisplacementOccurs())){
-            super.die();
-        }
+        super.die();
     }
 
     @Override
