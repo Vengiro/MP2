@@ -28,13 +28,16 @@ import static ch.epfl.cs107.play.game.areagame.actor.Animation.createAnimations;
 
 public class ICRoguePlayer extends ICRogueActor implements Interactor {
 
+    private int HP = 3;
+    private TextGraphics message = new TextGraphics(Integer.toString(HP), 0.4f, Color.WHITE);
+    private boolean hasLost = false;
     private Sprite sprite;
-    final private Sprite[] upSprite = new Sprite[4];
+    /*final private Sprite[] upSprite = new Sprite[4];
     final private Sprite[] downSprite = new Sprite[4];
     final private Sprite[] rightSprite = new Sprite[4];
     final private Sprite[] leftSprite = new Sprite[4];
     final private Sprite[][] arrayOfSprite = {upSprite, rightSprite, downSprite, leftSprite};
-    private int frame;
+    private int frame;*/
     private final static int MOVE_DURATION = 6;
     private final Keyboard keyboard = this.getOwnerArea().getKeyboard();
     private final ICRoguePlayerInteractionHandler handler = new ICRoguePlayerInteractionHandler();
@@ -46,8 +49,20 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
     private boolean wantSwitchRoom = false;
     private String destinationName;
     private DiscreteCoordinates spawnPosition;
-    private final Animation[] animation;
-    private Animation currentAnimation;
+    // Build an 2d array containing all useful sprites to build an animation in every orientation
+    private final Sprite[][] spritesArrayPlayer = RPGSprite.extractSprites("zelda/player", 4,.75f, 1.5f
+            ,this , 16, 32, new Vector(.15f,-.15f),
+            new Orientation[]{Orientation.DOWN, Orientation.RIGHT, Orientation.UP, Orientation.LEFT});
+    private final Animation[] animationOfPlayer =  createAnimations(MOVE_DURATION, spritesArrayPlayer);
+    private Animation currentAnimationOfPlayer;
+
+
+    private final Sprite[][] spritesArrayStaff = RPGSprite.extractSprites("zelda/player.staff_water", 4,1.5f, 1.5f
+            ,this , 32, 32, new Vector(.15f,-.15f),
+            new Orientation[]{Orientation.DOWN, Orientation.UP, Orientation.RIGHT, Orientation.LEFT});
+
+    private final Animation[] animationOfPlayerStaff =  createAnimations(MOVE_DURATION, spritesArrayStaff);
+    private Animation currentAnimationOfPlayerStaff;
 
 
     /**
@@ -59,83 +74,89 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
      */
     public ICRoguePlayer(Area area, Orientation orientation, DiscreteCoordinates position) {
         super(area, orientation, position);
-        correctSprite(orientation);
-        animation = createAnimations(MOVE_DURATION, arrayOfSprite);
+        correctOrientationSprite(orientation);
+        message.setParent(this);
+        message.setAnchor(new Vector(-0.3f, 0.1f));
     }
 
+    private final static float COOLDOWN = 1.5f;
+    private final static float dt = .1f;
+    private float counter = COOLDOWN;
+
+    private final static float CHARGETIMEFOREXPLOSION = 3.f;
+
+    private float currentCharge = 0;
+
+    @Override
     public void update(float deltatime){
         super.update(deltatime);
         this.moveIfPressed(Orientation.UP, keyboard.get(Keyboard.UP));
         this.moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
         this.moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
         this.moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
-        throwFireBall(keyboard.get(Keyboard.X));
-        if(isDisplacementOccurs()){
-            currentAnimation.update(deltatime);
+        counter += dt;
+        if (keyboard.get(Keyboard.X).isDown()){ currentCharge += dt;}
+        if (counter >= COOLDOWN && keyboard.get(Keyboard.X).isReleased()) {
+            counter = 0;
+            Fire fireball = throwFireBall();
+            if (currentCharge >= CHARGETIMEFOREXPLOSION && fireball != null){
+                fireball.throwExplosion();
+                fireball.appear();
+            }else if (fireball != null){
+                fireball.appear();
+            }
+            currentCharge = 0;
         }
+        if (keyboard.get(Keyboard.X).isDown() & staffCollected){
+            currentAnimationOfPlayerStaff.update(deltatime);
+        }
+        if(isDisplacementOccurs()){
+            currentAnimationOfPlayer.update(deltatime);
+        }
+        if (this.isDead() && !(hasLost)){
+            hasLost = true;
+            System.out.println("Game over");
+        }
+        message.setText(Integer.toString(HP));
         //If it is not assign to false it keeps being true so switchRoom in ICRogue keeps being called
         wantSwitchRoom = false;
     }
 
+    public void takeDamage(int damage){
+        HP = HP - damage;
+        if (HP < 0){HP = 0;}
+    }
+    public boolean isDead(){
+        return HP == 0;
+    }
     public boolean getWillOfTransition(){return wantSwitchRoom;}
     public String getDestination(){return destinationName;}
     public DiscreteCoordinates getSpawnPosition(){return spawnPosition;}
 
-    private void dynamicSprite(){
-        for (int i = 0; i < 4; ++i) {
-            downSprite[i] = new Sprite("zelda/player", .75f, 1.5f, this , new RegionOfInterest(i*16, 0, 16, 32), new Vector(.15f,-.15f));
-            rightSprite[i] = new Sprite("zelda/player", .75f, 1.5f, this , new RegionOfInterest(i*16, 32, 16, 32), new Vector(.15f,-.15f));
-            upSprite[i] = new Sprite("zelda/player", .75f, 1.5f, this , new RegionOfInterest(i*16, 64, 16, 32), new Vector(.15f,-.15f));
-            leftSprite[i] = new Sprite("zelda/player", .75f, 1.5f, this , new RegionOfInterest(i*16, 96, 16, 32), new Vector(.15f,-.15f));
-        }
-    }
-    private void correctSprite(Orientation orientation){
-        dynamicSprite();
-        switch (orientation) {
-            case UP -> {
-                sprite = upSprite[0];
-            }
-            case DOWN -> {
-                sprite = downSprite[0];
-            }
-            case RIGHT -> {
-                sprite = rightSprite[0];
-            }
-            case LEFT -> {
-                sprite = leftSprite[0];
-            }
-        }
 
-    }
-    private void setSprite(final Sprite sprite) {
-        this.sprite = sprite;
+    private void correctOrientationSprite(Orientation orientation){
+        sprite = spritesArrayPlayer[orientation.ordinal()][0];
     }
     private void moveIfPressed(final Orientation orientation, final Button b) {
         if (b.isDown()) {
             if (!this.isDisplacementOccurs()) {
                 this.orientate(orientation);
-                correctSprite(orientation);
+                correctOrientationSprite(orientation);
                 this.move(MOVE_DURATION);
-                currentAnimation = animation[orientation.ordinal()];
+                currentAnimationOfPlayer = animationOfPlayer[orientation.ordinal()];
+                currentAnimationOfPlayerStaff = animationOfPlayerStaff[orientation.ordinal()];
             }
         }
     }
 
-    private void throwFireBall(Button b){
-
-        if (b.wasDown() && staffCollected){
-            // Check if spam fireball
-            if(!(b.isDown())){
-
-                // We take the first element of the Discrete Coordinates list provided by getCurrentCells()
-                // because it contains only one element
-
-                Fire fireBall = new Fire(getOwnerArea(), getOrientation(),getCurrentCells().get(0));
-                fireBall.appear();
-            }
+    private Fire throwFireBall(){
+        if (staffCollected){
+            // We take the first element of the Discrete Coordinates list provided by getCurrentCells()
+            // because it contains only one element
+            // The fireball should spawn in front of his staff, so we jump to the cell in front of him
+            return new Fire(getOwnerArea(), getOrientation(),getCurrentCells().get(0).jump(getOrientation().toVector()));
         }
-
-
+        return null;
     }
 
     public void enterArea(final Area area, final DiscreteCoordinates position) {
@@ -144,7 +165,6 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
         this.setCurrentPosition(position.toVector());
         this.resetMotion();
     }
-
     public void leaveArea() {
         this.getOwnerArea().unregisterActor((Actor)this);
     }
@@ -152,10 +172,13 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
     @Override
     public void draw(Canvas canvas) {
         if (isDisplacementOccurs()){
-            this.currentAnimation.draw(canvas);
+            this.currentAnimationOfPlayer.draw(canvas);
+        }else if(keyboard.get(Keyboard.X).isDown() & staffCollected){
+            this.currentAnimationOfPlayerStaff.draw(canvas);
         }else {
             this.sprite.draw(canvas);
         }
+        message.draw(canvas);
     }
 
     @Override
@@ -170,7 +193,7 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
 
     @Override
     public boolean isViewInteractable() {
-        return false;
+        return true;
     }
 
     @Override
@@ -200,27 +223,27 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
         other.acceptInteraction(handler , isCellInteraction);
     }
     private class ICRoguePlayerInteractionHandler implements ICRogueInteractionHandler{
-
+        @Override
         public void interactWith(Cherry c, boolean isCellInteraction){
             if(wantsCellInteraction()){
                 c.collect();
             }
         }
-
+        @Override
         public void interactWith(Staff s, boolean isCellInteraction){
             if (wantsViewInteraction()){
                 s.collect();
                 staffCollected = s.isCollected();
             }
         }
-
+        @Override
         public void interactWith(Key key, boolean isCellInteraction){
             if (wantsCellInteraction()){
                 key.collect();
                 keysID.add(key.getKeyID());
             }
         }
-
+        @Override
         public void interactWith(Connector connector, boolean isCellInteraction){
             if(wantsViewInteraction()){
                 for(int key : keysID){
@@ -236,7 +259,7 @@ public class ICRoguePlayer extends ICRogueActor implements Interactor {
 
             wantSwitchRoom = (wantsCellInteraction() & !(isDisplacementOccurs()));
         }
-
+        @Override
         public void interactWith(Turret turret, boolean isCellInteraction){
             if (wantsCellInteraction()){
                 turret.die();

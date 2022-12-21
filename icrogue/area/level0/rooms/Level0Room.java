@@ -70,7 +70,7 @@ public class Level0Room extends ICRogueRoom {
     protected void createArea() {
         super.createArea();
         registerActor(new Background(this, behaviorName));
-        registerActor(new Cherry(this, Orientation.DOWN, new DiscreteCoordinates(6,3)));
+        /*registerActor(new Cherry(this, Orientation.DOWN, new DiscreteCoordinates(6,3)));*/
     }
 
     @Override

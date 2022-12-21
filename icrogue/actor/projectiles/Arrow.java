@@ -19,15 +19,15 @@ import java.util.List;
 public class Arrow extends Projectile{
     public Arrow(Area area, Orientation orientation, DiscreteCoordinates position, int MOVE_DURATION, int damage) {
         super(area, orientation, position, MOVE_DURATION, damage);
-        sprite = new Sprite("zelda/arrow", 1f, 1f, this ,
-                new RegionOfInterest(32* orientation.ordinal(), 0, 32, 32), new Vector(0, 0));
+        setSprite(new Sprite("zelda/arrow", 1f, 1f, this ,
+                new RegionOfInterest(32* orientation.ordinal(), 0, 32, 32), new Vector(0, 0)));
 
     }
 
     public Arrow(Area area, Orientation orientation, DiscreteCoordinates position) {
         super(area, orientation, position);
-        sprite = new Sprite("zelda/arrow", 1f, 1f, this ,
-                new RegionOfInterest(32* orientation.ordinal(), 0, 32, 32), new Vector(0, 0));
+        setSprite(new Sprite("zelda/arrow", 1f, 1f, this ,
+                new RegionOfInterest(32* orientation.ordinal(), 0, 32, 32), new Vector(0, 0)));
 
     }
 
@@ -37,12 +37,12 @@ public class Arrow extends Projectile{
     }
 
     private void throwArrow(){
-        move(MOVE_DURATION);
+        move(getMoveDuration());
     }
 
     @Override
     public void draw(Canvas canvas) {
-        sprite.draw(canvas);
+        getSprite().draw(canvas);
     }
 
     @Override
@@ -69,12 +69,14 @@ public class Arrow extends Projectile{
     private class ICRogueArrowInteractionHandler implements ICRogueInteractionHandler{
         public void interactWith(ICRogueBehavior.ICRogueCell cell, boolean isCellInteraction){
 
-            if(doesItStopProjectiles(cell)){
+            if(doesItStopProjectiles(cell) && !(isConsumed())){
                 consume();
             }
         }
         public void interactWith(ICRoguePlayer player, boolean isCellInteraction){
             consume();
+            player.takeDamage(getDamage());
+            /*System.exit(0);*/
         }
 
 

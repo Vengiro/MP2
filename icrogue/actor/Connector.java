@@ -43,7 +43,6 @@ public class Connector extends ICRogueActor implements Interactable {
         this.orientation = orientation;
     }
 
-    public Area getConnectorArea(){return this.getOwnerArea();}
 
     public void setCoordinatesOfSpawn(DiscreteCoordinates coordinatesOfSpawn){this.coordinatesOfSpawn = coordinatesOfSpawn;}
     public DiscreteCoordinates getCoordinatesOfSpawn(){return coordinatesOfSpawn;}

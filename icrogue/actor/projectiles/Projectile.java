@@ -16,10 +16,10 @@ import java.util.List;
 
 public abstract class Projectile extends ICRogueActor implements Consumable, Interactor {
 
-    protected Sprite sprite;
-    protected int MOVE_DURATION;
-    protected int damage;
-    protected boolean isConsumed;
+    private Sprite sprite;
+    private int MOVE_DURATION;
+    private int damage;
+    private boolean isConsumed;
 
     final private int DEFAULT_DAMAGE = 1;
     final private int DEFAULT_MOVE_DURATION = 4;
@@ -41,6 +41,12 @@ public abstract class Projectile extends ICRogueActor implements Consumable, Int
         MOVE_DURATION = DEFAULT_MOVE_DURATION;
         damage = DEFAULT_DAMAGE;
     }
+
+    protected void setSprite(Sprite sprite){this.sprite = sprite;}
+    protected Sprite getSprite(){return sprite;}
+
+    protected int getMoveDuration(){return MOVE_DURATION;}
+    protected int getDamage(){return damage;}
 
     @Override
     public void consume() {
