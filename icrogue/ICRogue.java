@@ -36,7 +36,7 @@ public class ICRogue extends AreaGame {
 
 
     private void initLevel(){
-        Level = new Level0();
+        Level = new Level0(true);
         Level.initArea(this);
         String  startingRoomTitle = Level.getTitleStartingRoom(Level0.getStartingRoomPosition());
         ICRogueRoom startingRoom = (ICRogueRoom) setCurrentArea(startingRoomTitle, true);
@@ -95,7 +95,7 @@ public class ICRogue extends AreaGame {
     private void switchRoom() {
         if(player.getWillOfTransition()){
             player.leaveArea();
-            ICRogueRoom currentArea = (ICRogueRoom) setCurrentArea(player.getDestination(), true);
+            ICRogueRoom currentArea = (ICRogueRoom) setCurrentArea(player.getDestination(), false);
             player.enterArea(currentArea, player.getSpawnPosition());
         }
     }

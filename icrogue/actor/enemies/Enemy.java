@@ -20,11 +20,18 @@ public abstract class Enemy extends ICRogueActor {
         super(area, orientation, position);
     }
 
-
+    /**
+     * Kill the enemy and unregister him from the current area
+     */
     public void die(){
         isDead = true;
         getOwnerArea().unregisterActor(this);
     }
+
+    /**
+     * Return if the enemy is dead or not
+     * @return boolean
+     */
     public boolean isDead(){return isDead;}
 }
 

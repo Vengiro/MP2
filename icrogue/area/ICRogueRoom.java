@@ -32,7 +32,7 @@ public abstract class ICRogueRoom extends Area implements Logic {
     protected String behaviorName;
     protected DiscreteCoordinates roomCoordinates;
 
-    protected ArrayList<Connector> setOfConnector = new ArrayList<>();
+    private List<Connector> setOfConnector = new ArrayList<>();
 
     /**
      * Create the area by adding it all actors
@@ -62,6 +62,7 @@ public abstract class ICRogueRoom extends Area implements Logic {
 
     /// EnigmeArea extends Area
 
+
     @Override
     public final float getCameraScaleFactor() {
         return ICRogue.CAMERA_SCALE_FACTOR;
@@ -75,6 +76,7 @@ public abstract class ICRogueRoom extends Area implements Logic {
         }
     }
     public abstract DiscreteCoordinates getPlayerSpawnPosition();
+    protected List<Connector> getSetOfConnectors(){return setOfConnector;}
 
 
     /// Demo2Area implements Playable

@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class Item extends CollectableAreaEntity {
-    protected Sprite sprite;
+    private Sprite sprite;
     public Item(Area area, Orientation orientation, DiscreteCoordinates position) {
         super(area, orientation, position);
     }
@@ -20,6 +20,8 @@ public abstract class Item extends CollectableAreaEntity {
     public boolean takeCellSpace() {
         return false;
     }
+
+    protected void setSprite(Sprite sprite){this.sprite = sprite;}
 
     @Override
     public void draw(Canvas canvas) {
